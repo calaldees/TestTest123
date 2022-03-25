@@ -66,8 +66,8 @@ jobs:
       
     - name: Push changes
     ###Fixes issue where error if no changed files
-      #if: env.changesMade == 'True'
-      if: env.changesMade == 'magic'
+      if: env.changesMade == 'True'
+      #if: env.changesMade == 'magic'
       run: |
           git config --global user.name 'CI operator'
           git config --global user.email 'CI@users.noreply.github.com'
