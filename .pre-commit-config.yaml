@@ -1,0 +1,10 @@
+repos:
+-   repo: local
+    hooks:
+    -   id: Convetion Commits
+        name: check for convetion commit
+        language: pygrep
+        entry: '^!'
+        args: [--multiline]
+        stages: [commit-msg]
+

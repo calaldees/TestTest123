@@ -1,0 +1,83 @@
+name: test2
+on:
+  # Triggers the workflow on push or pull request events but only for the main branch
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    env:
+      OS: ubuntu-latest
+      PYTHON: '3.9'
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Python
+      uses: actions/setup-python@master
+      with:
+        python-version: 3.7
+    - name: 'generate report'
+      run: |
+        pip install coverage
+        
+        coverage run -m --omit="*/tests*" unittest
+
+        read -r firstline<Code-Coverage-Percent.txt
+        
+        coverage report --fail-under=$firstline
+        
+        coverage html
+        coverage json --pretty-print
+        ls -lR
+    - name: Upload html report
+      uses: actions/upload-artifact@v3
+      with:
+          name: unittest
+          path: htmlcov/index.html
+          
+    - name: Upload json report
+      uses: actions/upload-artifact@v3
+      with:
+          name: unittest.json
+          path: coverage.json
+    - name : test
+      run: |
+          bob=$( cat coverage.json | grep -Eo '[0-9]+' | tail -3 | head -n 1 )
+          echo $bob > Code-Coverage-Percent.txt
+          
+    - name: Check for changes
+      run: |
+        if [[ -n $(git status -s) ]]
+        then
+          echo "changes made"
+          echo "changesMade=True" >> $GITHUB_ENV
+        fi
+        #https://stackoverflow.com/a/40535565
+        
+    - name: checkChangesMadeworks
+      if: env.changesMade == 'True'
+      run: |
+        echo "Changes made == ${{ env.changesMade }}"
+      
+    - name: Push changes
+    ###Fixes issue where error if no changed files
+      #if: env.changesMade == 'True'
+      if: env.changesMade == 'magic'
+      run: |
+          git config --global user.name 'CI operator'
+          git config --global user.email 'CI@users.noreply.github.com'
+          #have to use repo secret key if want the push to trigger workflow
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+          git add Code-Coverage-Percent.txt
+          git commit -m "Automated changes"
+          git push
+    #- name : Auto commit
+    #  uses: stefanzweifel/git-auto-commit-action@v4
+    #  with:
+    #    commit_message: No way this works
+
