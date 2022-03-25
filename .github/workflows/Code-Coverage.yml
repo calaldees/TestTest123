@@ -1,4 +1,4 @@
-name: test2
+name: Code Coverage
 on:
   # Triggers the workflow on push or pull request events but only for the main branch
   push:
@@ -45,10 +45,10 @@ jobs:
       with:
           name: unittest.json
           path: coverage.json
-    - name : test
-      run: |
-          bob=$( cat coverage.json | grep -Eo '[0-9]+' | tail -3 | head -n 1 )
-          echo $bob > Code-Coverage-Percent.txt
+    #- name : test
+    #  run: |
+    #      bob=$( cat coverage.json | grep -Eo '[0-9]+' | tail -3 | head -n 1 )
+   #     echo $bob > Code-Coverage-Percent.txt
           
     - name: Check for changes
       run: |
@@ -59,10 +59,10 @@ jobs:
         fi
         #https://stackoverflow.com/a/40535565
         
-    - name: checkChangesMadeworks
-      if: env.changesMade == 'True'
-      run: |
-        echo "Changes made == ${{ env.changesMade }}"
+    #- name: checkChangesMadeworks
+    #  if: env.changesMade == 'True'
+    #  run: |
+    #    echo "Changes made == ${{ env.changesMade }}"
       
     - name: Push changes
     ###Fixes issue where error if no changed files
